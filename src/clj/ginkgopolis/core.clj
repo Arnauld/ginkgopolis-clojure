@@ -162,8 +162,9 @@
 ;
 ;
 
-(defn prepare-tiles [nbPlayers]
-  (let [tiles (group-by (fn [tile]
+(defn prepare-tiles [conf]
+  (let [nbPlayers (:nbPlayers conf)
+        tiles (group-by (fn [tile]
                           (if (<= (:number tile) 3)
                             :setup
                             :remaining)) (building-tiles))
@@ -177,19 +178,24 @@
     {:tiles-board          board
      :tiles-general-supply remaining-tiles}))
 
+(defn prepare-urbanization-markers [conf]
+  {:urbanization-markers {:a [-1 +2] :b [0 +2] :c [+1 +2]
+                          :d [+2 +1]
+                          :e [+2 0]
+                          :f [+2 -1]
+                          :i [-1 -2] :h [0 -2] :g [+1 -2]
+                          :l [-2 +1]
+                          :k [-2 0]
+                          :j [-2 -1]}})
+
+(defn default-conf [] {:nbPlayers 2})
+
 (defn setup
   ([]
-   (setup 2))
-  ([nbPlayers]
-   (let []
+   (setup (default-conf)))
+  ([conf]
+   (let [adjustedConf (into (default-conf) conf)]
      (-> {}
-         (into (prepare-tiles nbPlayers))
-         (assoc :urbanization-markers {:a [-1 +2] :b [0 +2] :c [+1 +2]
-                                       :d [+2 +1]
-                                       :e [+2 0]
-                                       :f [+2 -1]
-                                       :i [-1 -2] :h [0 -2] :g [+1 -2]
-                                       :l [-2 +1]
-                                       :k [-2 0]
-                                       :j [-2 -1]})
+         (into (prepare-tiles adjustedConf))
+         (into (prepare-urbanization-markers adjustedConf))
          ))))

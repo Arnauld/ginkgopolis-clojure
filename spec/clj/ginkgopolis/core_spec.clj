@@ -109,10 +109,10 @@
                 (should= [-2 +1] (:l markers))))
           (it "should contain 45 (= 60 -9 -6) remaining tiles in the pile for a 2 or 3 players setup"
               (should= 45 (count (:tiles-general-supply (setup))))
-              (should= 45 (count (:tiles-general-supply (setup 2))))
-              (should= 45 (count (:tiles-general-supply (setup 3)))))
+              (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 2}))))
+              (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 3})))))
           (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 4 players setup"
-              (should= 51 (count (:tiles-general-supply (setup 4)))))
+              (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 4})))))
           )
 
 (run-specs)
