@@ -58,10 +58,14 @@
                        (letter-for-type (urbanization-cards) :urbanization))))
 
 (describe "The Building cards"
-          (xit "should contain 60 cards"
+          (it "should contain 60 cards"
                (should= 60 (count (building-cards))))
           (it "should all be typed 'building'"
               (should= (count (building-cards)) (count-for-type (building-cards) :building)))
+          (it "should contain 20 blue cards"
+              (should= 20 (count-for-color (building-cards) :blue)))
+          (it "should contain 20 yellow cards"
+              (should= 20 (count-for-color (building-cards) :yellow)))
           (it "should contain 20 red cards"
               (should= 20 (count-for-color (building-cards) :red))))
 
@@ -75,7 +79,7 @@
 (describe "Game setup"
           (it "should place the 9 building tiles numbered from 1, 2 and 3 for each color"
               (let [setup (setup)
-                    setup-tiles-by-coord (:tiles-board setup)
+                    setup-tiles-by-coord (:city setup)
                     setup-tiles (vals setup-tiles-by-coord)]
                 (should= 9 (count setup-tiles-by-coord))
                 (should= [1 2 3] (numbers-for-color setup-tiles :blue))
@@ -83,14 +87,15 @@
                 (should= [1 2 3] (numbers-for-color setup-tiles :red))))
           (it "should place the 9 building tiles in a 3x3 grid"
               (let [setup (setup)
-                    setup-tiles-by-coord (:tiles-board setup)
+                    setup-tiles-by-coord (:city setup)
                     coords (keys setup-tiles-by-coord)
                     grid (for [x [-1 0 1] y [-1 0 1]] (vector x y))]
                 (should= (sort coords) (sort grid))))
           (it "should place *randomly* the 9 building tiles"
               (let [setup1 (setup)
                     setup2 (setup)]
-                (should-not= (:tiles-board setup1) (:tiles-board setup2))))
+                (should-not= (:city setup1) (:city setup2))))
+
           (it "should place the urbanization markers in alphabetical orders"
               (let [setup (setup)
                     markers (:urbanization-markers setup)]
@@ -107,12 +112,20 @@
                 (should= [-2 -1] (:j markers))
                 (should= [-2 0] (:k markers))
                 (should= [-2 +1] (:l markers))))
+
           (it "should contain 45 (= 60 -9 -6) remaining tiles in the pile for a 2 or 3 players setup"
               (should= 45 (count (:tiles-general-supply (setup))))
               (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 2}))))
               (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 3})))))
           (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 4 players setup"
               (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 4})))))
+
+          (it "should prepare the deck by shuffling together the 12 urbanization cards and the 9 building cards"
+              (let [setup (setup)
+                    deck (:deck setup)]
+                (should= 12 (count-for-type deck :urbanization))
+                (should= 9 (count-for-type deck :building))
+                (should= 21 (count deck))))
           )
 
 (run-specs)

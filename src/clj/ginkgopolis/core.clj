@@ -30,6 +30,9 @@
 (defn- point-gain [_action game]
   (throw (UnsupportedOperationException. "Not implemented")))
 
+(defn- tile-gain [_action game]
+  (throw (UnsupportedOperationException. "Not implemented")))
+
 
 (defn- tile-color-bonus [color]
   (fn [& args] (throw (UnsupportedOperationException. "Not implemented"))))
@@ -93,10 +96,52 @@
       (into actions)))
 
 (defn building-cards-blue []
-  [])
+  [
+   (new-building-card :blue 1 (on-action :exploit [tile-gain]))
+   (new-building-card :blue 2 (on-action :urbanization [tile-gain]))
+   (new-building-card :blue 3 (on-action :floor-construction [tile-gain]))
+   (new-building-card :blue 4 (on-action :exploit [tile-gain]))
+   (new-building-card :blue 5 (on-action :urbanization [tile-gain]))
+   (new-building-card :blue 6 (on-action :floor-construction [tile-gain]))
+   (new-building-card :blue 7 (on-action :exploit [tile-gain point-gain]))
+   (new-building-card :blue 8 (on-action :urbanization [tile-gain point-gain]))
+   (new-building-card :blue 9 (on-action :floor-construction [tile-gain point-gain]))
+   (new-building-card :blue 10 (on-endgame (tile-color-bonus :blue)))
+   (new-building-card :blue 11 (on-endgame (tile-color-bonus :red)))
+   (new-building-card :blue 12 (on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :blue 13 (on-endgame (tile-color-bonus :blue)))
+   (new-building-card :blue 14 (on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
+   (new-building-card :blue 15 (on-endgame (tile-height-bonus #(<= 3 %) 3)))
+   (new-building-card :blue 16 (on-endgame (card-type-bonus :exploit 2)))
+   (new-building-card :blue 17 (on-endgame (card-type-bonus :urbanization 2)))
+   (new-building-card :blue 18 (on-endgame (card-type-bonus :floor-construction 2)))
+   (new-building-card :blue 19 (on-endgame (card-color-bonus :blue 2)))
+   (new-building-card :blue 20 (on-endgame (point-bonus 9)))
+   ])
 
 (defn building-cards-yellow []
-  [])
+  [
+   (new-building-card :yellow 1 (on-action :exploit [point-gain]))
+   (new-building-card :yellow 2 (on-action :urbanization [point-gain]))
+   (new-building-card :yellow 3 (on-action :floor-construction [point-gain]))
+   (new-building-card :yellow 4 (on-action :exploit [point-gain]))
+   (new-building-card :yellow 5 (on-action :urbanization [point-gain]))
+   (new-building-card :yellow 6 (on-action :floor-construction [point-gain]))
+   (new-building-card :yellow 7 (on-action :exploit [point-gain point-gain]))
+   (new-building-card :yellow 8 (on-action :urbanization [point-gain point-gain]))
+   (new-building-card :yellow 9 (on-action :floor-construction [point-gain point-gain]))
+   (new-building-card :yellow 10 (on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :yellow 11 (on-endgame (tile-color-bonus :red)))
+   (new-building-card :yellow 12 (on-endgame (tile-color-bonus :blue)))
+   (new-building-card :yellow 13 (on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :yellow 14 (on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
+   (new-building-card :yellow 15 (on-endgame (tile-height-bonus #(<= 3 %) 3)))
+   (new-building-card :yellow 16 (on-endgame (card-type-bonus :exploit 2)))
+   (new-building-card :yellow 17 (on-endgame (card-type-bonus :urbanization 2)))
+   (new-building-card :yellow 18 (on-endgame (card-type-bonus :floor-construction 2)))
+   (new-building-card :yellow 19 (on-endgame (card-color-bonus :yellow 2)))
+   (new-building-card :yellow 20 (on-endgame (point-bonus 9)))
+   ])
 
 (defn building-cards-red []
   [
@@ -175,7 +220,7 @@
         board (zipmap (shuffle [[-1 1] [0 1] [1 1]
                                 [-1 0] [0 0] [1 0]
                                 [-1 -1] [0 -1] [1 -1]]) (:setup tiles))]
-    {:tiles-board          board
+    {:city                 board
      :tiles-general-supply remaining-tiles}))
 
 (defn prepare-urbanization-markers [conf]
@@ -188,6 +233,11 @@
                           :k [-2 0]
                           :j [-2 -1]}})
 
+(defn prepare-deck [conf]
+  {:deck (shuffle (-> []
+                      (into (urbanization-cards))
+                      (into (filter #(<= (:number %) 3) (building-cards)))))})
+
 (defn default-conf [] {:nbPlayers 2})
 
 (defn setup
@@ -198,4 +248,5 @@
      (-> {}
          (into (prepare-tiles adjustedConf))
          (into (prepare-urbanization-markers adjustedConf))
+         (into (prepare-deck adjustedConf))
          ))))
