@@ -135,13 +135,61 @@
 ;  / /_\\ (_| | | | | | |  __/
 ;  \____/\__,_|_| |_| |_|\___|
 
-(defn setup []
+
+;
+;
+; +.....+.....+.....+.....+.....+
+; :     :     :     :     :     :
+; :-2,+2:-1,+2: 0,+2:+1,+2:+2,+2:
+; :     :     :     :     :     :
+; +.....+=====+=====+=====+.....+
+; :     |     :     :     |     :
+; :-2,+1|-1,+1: 0,+1:+1,+1|+2,+1:
+; :     |     :     :     |     :
+; +.....+.....+.....+.....+.....+
+; :     |     :     :     |     :
+; :-2,0 |-1,0 : 0,0 :+1,0 |+2,0 :
+; :     |     :     :     |     :
+; +.....+.....+.....+.....+.....+
+; :     |     :     :     |     :
+; :-2,-1|-1,-1: 0,-1:+1,-1|+2,-1:
+; :     |     :     :     |     :
+; +.....+=====+=====+=====+.....+
+; :     :     :     :     :     :
+; :-2,-2:-1,-2: 0,-2:+1,-2:+2,-2:
+; :     :     :     :     :     :
+; +.....+.....+.....+.....+.....+
+;
+;
+
+(defn prepare-tiles [nbPlayers]
   (let [tiles (group-by (fn [tile]
                           (if (<= (:number tile) 3)
                             :setup
-                            :remaining)) (building-tiles))]
-    {:tiles (zipmap (shuffle [[-1 1] [0 1] [1 1]
-                              [-1 0] [0 0] [1 0]
-                              [-1 -1] [0 -1] [1 -1]]) (:setup tiles))}))
+                            :remaining)) (building-tiles))
+        remaining-tiles (shuffle (:remaining tiles))
+        remaining-tiles (if (or (= 2 nbPlayers) (= 3 nbPlayers))
+                          (drop 6 remaining-tiles)
+                          remaining-tiles)
+        board (zipmap (shuffle [[-1 1] [0 1] [1 1]
+                                [-1 0] [0 0] [1 0]
+                                [-1 -1] [0 -1] [1 -1]]) (:setup tiles))]
+    {:tiles-board          board
+     :tiles-general-supply remaining-tiles}))
 
-
+(defn setup
+  ([]
+   (setup 2))
+  ([nbPlayers]
+   (let []
+     (-> {}
+         (into (prepare-tiles nbPlayers))
+         (assoc :urbanization-markers {:a [-1 +2] :b [0 +2] :c [+1 +2]
+                                       :d [+2 +1]
+                                       :e [+2 0]
+                                       :f [+2 -1]
+                                       :i [-1 -2] :h [0 -2] :g [+1 -2]
+                                       :l [-2 +1]
+                                       :k [-2 0]
+                                       :j [-2 -1]})
+         ))))

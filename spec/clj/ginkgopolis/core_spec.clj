@@ -75,7 +75,7 @@
 (describe "Game setup"
           (it "should place the 9 building tiles numbered from 1, 2 and 3 for each color"
               (let [setup (setup)
-                    setup-tiles-by-coord (:tiles setup)
+                    setup-tiles-by-coord (:tiles-board setup)
                     setup-tiles (vals setup-tiles-by-coord)]
                 (should= 9 (count setup-tiles-by-coord))
                 (should= [1 2 3] (numbers-for-color setup-tiles :blue))
@@ -83,13 +83,36 @@
                 (should= [1 2 3] (numbers-for-color setup-tiles :red))))
           (it "should place the 9 building tiles in a 3x3 grid"
               (let [setup (setup)
-                    setup-tiles-by-coord (:tiles setup)
+                    setup-tiles-by-coord (:tiles-board setup)
                     coords (keys setup-tiles-by-coord)
                     grid (for [x [-1 0 1] y [-1 0 1]] (vector x y))]
                 (should= (sort coords) (sort grid))))
           (it "should place *randomly* the 9 building tiles"
               (let [setup1 (setup)
                     setup2 (setup)]
-                (should-not= (:tiles setup1) (:tiles setup2)))))
+                (should-not= (:tiles-board setup1) (:tiles-board setup2))))
+          (it "should place the urbanization markers in alphabetical orders"
+              (let [setup (setup)
+                    markers (:urbanization-markers setup)]
+                (should= [:a :b :c :d :e :f :g :h :i :j :k :l] (sort (keys markers)))
+                (should= [-1 +2] (:a markers))
+                (should= [0 +2] (:b markers))
+                (should= [+1 +2] (:c markers))
+                (should= [+2 +1] (:d markers))
+                (should= [+2 0] (:e markers))
+                (should= [+2 -1] (:f markers))
+                (should= [+1 -2] (:g markers))
+                (should= [0 -2] (:h markers))
+                (should= [-1 -2] (:i markers))
+                (should= [-2 -1] (:j markers))
+                (should= [-2 0] (:k markers))
+                (should= [-2 +1] (:l markers))))
+          (it "should contain 45 (= 60 -9 -6) remaining tiles in the pile for a 2 or 3 players setup"
+              (should= 45 (count (:tiles-general-supply (setup))))
+              (should= 45 (count (:tiles-general-supply (setup 2))))
+              (should= 45 (count (:tiles-general-supply (setup 3)))))
+          (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 4 players setup"
+              (should= 51 (count (:tiles-general-supply (setup 4)))))
+          )
 
 (run-specs)
