@@ -439,18 +439,18 @@
 (defn update-player-with-tile [game playerId]
   (let [headTile (first (:tiles-general-supply game))]
     (-> game
-      (update-in [:players playerId :tiles] conj headTile)
-      (update-in [:tiles-general-supply] rest))))
+        (update-in [:players playerId :tiles] conj headTile)
+        (update-in [:tiles-general-supply] rest))))
 
 (defn update-player-with-point [game playerId]
   (-> game
       (update-in [:players playerId :points] inc)))
 
 (defn update-player-with-item [game playerId item]
-    (cond (= item :resource) (update-player-with-resource game playerId)
-          (= item :tile) (update-player-with-tile game playerId)
-          (= item :point) (update-player-with-point game playerId)
-          :else game))
+  (cond (= item :resource) (update-player-with-resource game playerId)
+        (= item :tile) (update-player-with-tile game playerId)
+        (= item :point) (update-player-with-point game playerId)
+        :else game))
 
 (defn take-initial-items-for-player [game playerId]
   (let [player (get-in game [:players playerId])
