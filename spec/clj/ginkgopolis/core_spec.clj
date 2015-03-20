@@ -215,11 +215,14 @@
                                 1)
         :else (throw (IllegalArgumentException. (str "Invalid predefined character: " id)))))
 
+(defn redefine-characters [game playerId characters]
+  (assoc-in game [:players playerId :characters] characters))
+
 (describe "Draft initial items"
           (it "should increase player's resource when character allow it - resource only"
               (let [playerId 1
                     setup (setup {:nbPlayers 5})
-                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 1)])
+                    setup (redefine-characters setup playerId [(predefined-character 1)])
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
                     oplayers (vals (dissoc players playerId))]
@@ -233,7 +236,7 @@
           (it "should add a tile to player when character allow it - tile only"
               (let [playerId 3
                     setup (setup {:nbPlayers 5})
-                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 2)])
+                    setup (redefine-characters setup playerId [(predefined-character 2)])
                     tile1 (first (get-in setup [:tiles-general-supply]))
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
@@ -247,7 +250,7 @@
           (it "should add a point to player when character allow it - point only"
               (let [playerId 4
                     setup (setup {:nbPlayers 5})
-                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 3)])
+                    setup (redefine-characters setup playerId [(predefined-character 3)])
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
                     oplayers (vals (dissoc players playerId))]
@@ -260,7 +263,7 @@
           (it "should add resources, a tile and a point to player when character allow it - multiple items"
               (let [playerId 5
                     setup (setup {:nbPlayers 5})
-                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 4)])
+                    setup (redefine-characters setup playerId [(predefined-character 4)])
                     tile1 (first (get-in setup [:tiles-general-supply]))
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
