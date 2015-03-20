@@ -2,6 +2,12 @@
   (:require [speclj.core :refer :all]
             [ginkgopolis.core :refer :all]))
 
+;         _   _ _
+;   _   _| |_(_) |___
+;  | | | | __| | / __|
+;  | |_| | |_| | \__ \
+;   \__,_|\__|_|_|___/
+
 (defn- count-for-color [tiles color]
   (->> tiles
        (filter #(= color (:color %)))
@@ -26,6 +32,38 @@
 
 (defn- card-with-number [cards number]
   (some #(= number (:number %)) cards))
+
+(defn predefined-character [id]
+  (cond (= id 1) (new-character :a :blue
+                                [:resource]
+                                (on-action :floor-construction [tile-gain])
+                                1)
+        (= id 2) (new-character :b :blue
+                                [:tile]
+                                (on-action :floor-construction [tile-gain])
+                                1)
+        (= id 3) (new-character :c :blue
+                                [:point]
+                                (on-action :exploit [tile-gain])
+                                1)
+        (= id 4) (new-character :d :yellow
+                                [:resource :resource :point :tile]
+                                (on-action :floor-construction [point-gain])
+                                1)
+        (= id 5) (new-character :e :red
+                                [:resource :point :tile]
+                                (on-action :urbanization [resource-gain])
+                                1)
+        :else (throw (IllegalArgumentException. (str "Invalid predefined character: " id)))))
+
+(defn redefine-characters [game playerId characters]
+  (assoc-in game [:players playerId :characters] characters))
+
+;   ___ _ __   ___  ___ ___
+;  / __| '_ \ / _ \/ __/ __|
+;  \__ \ |_) |  __/ (__\__ \
+;  |___/ .__/ \___|\___|___/
+;      |_|
 
 (describe "cartesian"
           (it "should return the cartesian product of two lists"
@@ -191,32 +229,6 @@
                     players (:players setup)]
                 (should= [0 0 0 0 0] (map #(:points %) (vals players)))))
           )
-
-(defn predefined-character [id]
-  (cond (= id 1) (new-character :a :blue
-                                [:resource]
-                                (on-action :floor-construction [tile-gain])
-                                1)
-        (= id 2) (new-character :b :blue
-                                [:tile]
-                                (on-action :floor-construction [tile-gain])
-                                1)
-        (= id 3) (new-character :c :blue
-                                [:point]
-                                (on-action :exploit [tile-gain])
-                                1)
-        (= id 4) (new-character :d :yellow
-                                [:resource :resource :point :tile]
-                                (on-action :floor-construction [point-gain])
-                                1)
-        (= id 5) (new-character :e :red
-                                [:resource :point :tile]
-                                (on-action :urbanization [resource-gain])
-                                1)
-        :else (throw (IllegalArgumentException. (str "Invalid predefined character: " id)))))
-
-(defn redefine-characters [game playerId characters]
-  (assoc-in game [:players playerId :characters] characters))
 
 (describe "Draft initial items"
           (it "should increase player's resource when character allow it - resource only"
