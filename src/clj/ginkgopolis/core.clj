@@ -70,7 +70,7 @@
                   (conj {:number num :color :blue})
                   (conj {:number num :color :red})
                   (conj {:number num :color :yellow})))
-            '() numbers)))
+            [] numbers)))
 
 (defn urbanization-cards []
   (map #(assoc % :card-type :urbanization)
@@ -391,7 +391,10 @@
         players (range 1 (inc nbPlayers))
         playerFn (fn [playerId]
                    {:characters      (get characterCardsPerPlayer playerId)
-                    :new-hand-tokens 2})
+                    :new-hand-tokens 2
+                    :resources       0
+                    :tiles           []
+                    :points          0})
         playersData (reduce (fn [ps playerId]
                               (assoc ps playerId (playerFn playerId)))
                             {} players)]

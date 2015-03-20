@@ -75,7 +75,7 @@
                      action (new-action card)]
                  (should-not-be-nil card))))
 
-(describe "Character card"
+(describe "The Character cards"
           (it "should contain 27 cards"
               (should= 27 (count (character-cards))))
           (it "should be typed 'character'"
@@ -129,9 +129,8 @@
               (should= 45 (count (:tiles-general-supply (setup))))
               (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 2}))))
               (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 3})))))
-          (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 4 players setup"
-              (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 4})))))
-          (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 5 players setup"
+          (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 4 or 5 players setup"
+              (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 4}))))
               (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 5})))))
 
           (it "should prepare the deck by shuffling together the 12 urbanization cards and the 9 building cards"
@@ -178,6 +177,19 @@
                                            (apply conj uniques
                                                   (map :id (:characters v)))) #{} players)]
                 (should= 15 (count characterIds))))
+
+          (it "should not provide any tiles to any player - 5 players case"
+              (let [setup (setup {:nbPlayers 5})
+                    players (:players setup)]
+                (should= [[] [] [] [] []] (map #(:tiles %) (vals players)))))
+          (it "should not provide any resource to any player - 5 players case"
+              (let [setup (setup {:nbPlayers 5})
+                    players (:players setup)]
+                (should= [0 0 0 0 0] (map #(:resources %) (vals players)))))
+          (it "should not provide any point to any player - 5 players case"
+              (let [setup (setup {:nbPlayers 5})
+                    players (:players setup)]
+                (should= [0 0 0 0 0] (map #(:points %) (vals players)))))
           )
 
 (run-specs)
