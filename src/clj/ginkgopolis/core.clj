@@ -330,15 +330,16 @@
 (defn prepare-tiles [conf]
   (let [nbPlayers (:nbPlayers conf)
         buildingTiles ((:buildingTiles conf))
+        shuffleFn (:shuffleFn conf)
         tiles (group-by (fn [tile]
                           (if (<= (:number tile) 3)
                             :setup
                             :remaining)) buildingTiles)
-        remaining-tiles (shuffle (:remaining tiles))
+        remaining-tiles (shuffleFn (:remaining tiles))
         remaining-tiles (if (or (= 2 nbPlayers) (= 3 nbPlayers))
                           (drop 6 remaining-tiles)
                           remaining-tiles)
-        board (zipmap (shuffle [[-1 1] [0 1] [1 1]
+        board (zipmap (shuffleFn [[-1 1] [0 1] [1 1]
                                 [-1 0] [0 0] [1 0]
                                 [-1 -1] [0 -1] [1 -1]]) (:setup tiles))]
     {:city                 board
@@ -357,19 +358,29 @@
 (defn prepare-deck [conf]
   (let [urbanizationCards ((:urbanizationCards conf))
         buildingCards ((:buildingCards conf))]
-    {:deck (shuffle (-> []
-                        (into urbanizationCards)
-                        (into (filter #(<= (:number %) 3) buildingCards))))}))
+    {:deck ((:shuffleFn conf) (-> []
+                                  (into urbanizationCards)
+                                  (into (filter #(<= (:number %) 3) buildingCards))))}))
 
 
-(defn prepare-characters [adjustedConf]
-  {})
+(defn prepare-characters [conf]
+  (let [nbPlayers (:nbPlayers conf)
+        characterCards ((:characterCards conf))
+        characterCards (group-by :groupId characterCards)
+        groupIds (remove nil? (keys characterCards))
+        groupIds ((:shuffleFn conf) groupIds)
+        groupIds (take nbPlayers groupIds)
+        characterCardsDistribution (map #(get characterCards %) groupIds)
+        players (range 1 (inc nbPlayers))]
+    {:players (zipmap players characterCardsDistribution)}))
 
 (defn default-conf []
   {:nbPlayers         2
    :buildingTiles     building-tiles
    :buildingCards     building-cards
-   :urbanizationCards urbanization-cards})
+   :urbanizationCards urbanization-cards
+   :characterCards    character-cards
+   :shuffleFn         shuffle})
 
 
 (defn setup
