@@ -88,12 +88,12 @@
         {:letter :K}
         {:letter :L}]))
 
-(defn- new-building-card [color number actions]
+(defn- new-building-card [color number action]
   (-> {}
       (assoc :card-type :building)
       (assoc :color color)
       (assoc :number number)
-      (into actions)))
+      (assoc :action action)))
 
 (defn building-cards-blue []
   [
@@ -174,6 +174,126 @@
       (into (building-cards-red))
       ))
 
+(defn- new-character
+  ([color initialItems action]
+   (new-character color initialItems action nil))
+  ([color initialItems action groupId]
+   {:card-type    :character
+    :color        color
+    :action       action
+    :initialItems initialItems
+    :groupId      groupId}))
+
+(defn character-cards []
+  [
+   ; ---
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :urbanization [resource-gain])
+                  1)
+   (new-character :yellow
+                  [:resource :resource :point :tile]
+                  (on-action :floor-construction [point-gain])
+                  1)
+   (new-character :blue
+                  [:resource]
+                  (on-action :floor-construction [tile-gain])
+                  1)
+   ; ---
+   (new-character :red
+                  [:tile]
+                  (on-action :floor-construction [resource-gain])
+                  2)
+   (new-character :yellow
+                  [:resource :resource :point :tile]
+                  (on-action :floor-construction [point-gain])
+                  2)
+   (new-character :blue
+                  [:resource :resource :point]
+                  (on-action :exploit [tile-gain])
+                  2)
+   ; ---
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :exploit [resource-gain])
+                  3)
+   (new-character :yellow
+                  [:resource :resource :point :point :tile]
+                  (on-action :urbanization [point-gain])
+                  3)
+   (new-character :blue
+                  [:resource :resource :point]
+                  (on-action :urbanization [tile-gain])
+                  3)
+   ; ---
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :urbanization [resource-gain])
+                  4)
+   (new-character :yellow
+                  [:resource :resource :point :point :tile]
+                  (on-action :urbanization [point-gain])
+                  4)
+   (new-character :blue
+                  [:resource]
+                  (on-action :floor-construction [tile-gain])
+                  4)
+   ; ---
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :exploit [resource-gain])
+                  5)
+   (new-character :yellow
+                  [:resource :resource :point :point :tile]
+                  (on-action :exploit [point-gain])
+                  5)
+   (new-character :blue
+                  [:resource]
+                  (on-action :floor-construction [tile-gain])
+                  5)
+   ; ---
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :urbanization [resource-gain])
+                  6)
+   (new-character :yellow
+                  [:resource :resource :point :point :tile]
+                  (on-action :exploit [point-gain])
+                  6)
+   (new-character :blue
+                  [:resource :resource :point]
+                  (on-action :exploit [tile-gain])
+                  6)
+   ; ---
+   (new-character :blue
+                  [:resource :resource :point]
+                  (on-action :urbanization [tile-gain]))
+   (new-character :blue
+                  [:resource :resource :point]
+                  (on-action :urbanization [tile-gain]))
+   (new-character :red
+                  [:tile]
+                  (on-action :floor-construction [resource-gain]))
+   (new-character :red
+                  [:tile]
+                  (on-action :floor-construction [resource-gain]))
+   (new-character :red
+                  [:tile]
+                  (on-action :floor-construction [resource-gain]))
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :exploit [resource-gain]))
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :exploit [resource-gain]))
+   (new-character :blue
+                  [:resource :resource :point]
+                  (on-action :exploit [tile-gain]))
+   (new-character :red
+                  [:resource :point :tile]
+                  (on-action :urbanization [resource-gain]))
+   ])
+
 ;     ___
 ;    / _ \__ _ _ __ ___   ___
 ;   / /_\/ _` | '_ ` _ \ / _ \
@@ -240,6 +360,9 @@
 
 (defn default-conf [] {:nbPlayers 2})
 
+(defn prepare-characters [adjustedConf]
+  {})
+
 (defn setup
   ([]
    (setup (default-conf)))
@@ -249,4 +372,5 @@
          (into (prepare-tiles adjustedConf))
          (into (prepare-urbanization-markers adjustedConf))
          (into (prepare-deck adjustedConf))
+         (into (prepare-characters adjustedConf))
          ))))

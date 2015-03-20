@@ -75,6 +75,11 @@
                      action (new-action card)]
                  (should-not-be-nil card))))
 
+(describe "Character card"
+          (it "should contain 27 cards"
+              (should= 27 (count (character-cards))))
+          (it "should be typed 'character'"
+              (should= 27 (count-for-type (character-cards) :character))))
 
 (describe "Game setup"
           (it "should place the 9 building tiles numbered from 1, 2 and 3 for each color"
