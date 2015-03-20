@@ -192,7 +192,92 @@
                 (should= [0 0 0 0 0] (map #(:points %) (vals players)))))
           )
 
+(defn predefined-character [id]
+  (cond (= id 1) (new-character :a :blue
+                                [:resource]
+                                (on-action :floor-construction [tile-gain])
+                                1)
+        (= id 2) (new-character :b :blue
+                                [:tile]
+                                (on-action :floor-construction [tile-gain])
+                                1)
+        (= id 3) (new-character :c :blue
+                                [:point]
+                                (on-action :exploit [tile-gain])
+                                1)
+        (= id 4) (new-character :d :yellow
+                                [:resource :resource :point :tile]
+                                (on-action :floor-construction [point-gain])
+                                1)
+        (= id 5) (new-character :e :red
+                                [:resource :point :tile]
+                                (on-action :urbanization [resource-gain])
+                                1)
+        :else (throw (IllegalArgumentException. (str "Invalid predefined character: " id)))))
+
+(describe "Draft initial items"
+          (it "should increase player's resource when character allow it - resource only"
+              (let [playerId 1
+                    setup (setup {:nbPlayers 5})
+                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 1)])
+                    update (take-initial-items-for-player setup playerId)
+                    players (:players update)
+                    oplayers (vals (dissoc players playerId))]
+                (should= 1 (get-in update [:players playerId :resources]))
+                (should= 15 (get-in update [:resources-general-supply playerId]))
+                ; everything else should remain unchanged
+                (should= [0 0 0 0] (map #(:resources %) oplayers))
+                (should= [0 0 0 0] (map #(:points %) oplayers))
+                (should= [[] [] [] []] (map #(:tiles %) oplayers))))
+
+          (it "should add a tile to player when character allow it - tile only"
+              (let [playerId 3
+                    setup (setup {:nbPlayers 5})
+                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 2)])
+                    tile1 (first (get-in setup [:tiles-general-supply]))
+                    update (take-initial-items-for-player setup playerId)
+                    players (:players update)
+                    oplayers (vals (dissoc players playerId))]
+                (should= [tile1] (get-in update [:players playerId :tiles]))
+                ; everything else should remain unchanged
+                (should= [0 0 0 0] (map #(:resources %) oplayers))
+                (should= [0 0 0 0] (map #(:points %) oplayers))
+                (should= [[] [] [] []] (map #(:tiles %) oplayers))))
+
+          (it "should add a point to player when character allow it - point only"
+              (let [playerId 4
+                    setup (setup {:nbPlayers 5})
+                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 3)])
+                    update (take-initial-items-for-player setup playerId)
+                    players (:players update)
+                    oplayers (vals (dissoc players playerId))]
+                (should= 1 (get-in update [:players playerId :points]))
+                ; everything else should remain unchanged
+                (should= [0 0 0 0] (map #(:resources %) oplayers))
+                (should= [0 0 0 0] (map #(:points %) oplayers))
+                (should= [[] [] [] []] (map #(:tiles %) oplayers))))
+
+          (it "should add resources, a tile and a point to player when character allow it - multiple items"
+              (let [playerId 5
+                    setup (setup {:nbPlayers 5})
+                    setup (assoc-in setup [:players playerId :characters] [(predefined-character 4)])
+                    tile1 (first (get-in setup [:tiles-general-supply]))
+                    update (take-initial-items-for-player setup playerId)
+                    players (:players update)
+                    oplayers (vals (dissoc players playerId))]
+                (should= [tile1] (get-in update [:players playerId :tiles]))
+                (should= 1 (get-in update [:players playerId :points]))
+                (should= 2 (get-in update [:players playerId :resources]))
+                (should= 14 (get-in update [:resources-general-supply playerId]))
+                ; everything else should remain unchanged
+                (should= [0 0 0 0] (map #(:resources %) oplayers))
+                (should= [0 0 0 0] (map #(:points %) oplayers))
+                (should= [[] [] [] []] (map #(:tiles %) oplayers))))
+
+          )
+
 (describe "Game round - Conservative checks"
-          (it "should ensure that when joining tiles from city, from the pile and from the player hands, one has the overall setup tiles"))
+          (it "should have all initial tiles when joining all of them from city, pile and player hands")
+          (it "should have all initial resources when joining all of them from city and player hand"))
 
 (run-specs)

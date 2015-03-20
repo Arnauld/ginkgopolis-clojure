@@ -13,24 +13,24 @@
 ;  /  _  \ (__| |_| | (_) | | | \__ \
 ;  \_/ \_/\___|\__|_|\___/|_| |_|___/
 
-(defn- on-action [actionType funcs]
+(defn on-action [actionType funcs]
   {:when   :on-action
    :filter (fn [action _game]
              (= (:action-type action) actionType))
    :apply  (fn [action game]
              (reduce (fn [game0 func] (func action game0)) game funcs))})
 
-(defn- on-endgame [func]
+(defn on-endgame [func]
   {:when  :on-endgame
    :apply func})
 
-(defn- resource-gain [_action game]
+(defn resource-gain [_action game]
   (throw (UnsupportedOperationException. "Not implemented")))
 
-(defn- point-gain [_action game]
+(defn point-gain [_action game]
   (throw (UnsupportedOperationException. "Not implemented")))
 
-(defn- tile-gain [_action game]
+(defn tile-gain [_action game]
   (throw (UnsupportedOperationException. "Not implemented")))
 
 
@@ -174,7 +174,7 @@
       (into (building-cards-red))
       ))
 
-(defn- new-character
+(defn new-character
   ([id color initialItems action]
    (new-character id color initialItems action nil))
   ([id color initialItems action groupId]
@@ -431,3 +431,32 @@
 ;  | .__/|_|\__,_|\__, |
 ;  |_|            |___/
 
+(defn update-player-with-resource [game playerId]
+  (-> game
+      (update-in [:players playerId :resources] inc)
+      (update-in [:resources-general-supply playerId] dec)))
+
+(defn update-player-with-tile [game playerId]
+  (let [headTile (first (:tiles-general-supply game))]
+    (-> game
+      (update-in [:players playerId :tiles] conj headTile)
+      (update-in [:tiles-general-supply] rest))))
+
+(defn update-player-with-point [game playerId]
+  (-> game
+      (update-in [:players playerId :points] inc)))
+
+(defn update-player-with-item [game playerId item]
+    (cond (= item :resource) (update-player-with-resource game playerId)
+          (= item :tile) (update-player-with-tile game playerId)
+          (= item :point) (update-player-with-point game playerId)
+          :else game))
+
+(defn take-initial-items-for-player [game playerId]
+  (let [player (get-in game [:players playerId])
+        characters (:characters player)]
+    (reduce (fn [game0 character]
+              (reduce (fn [game1 item] (update-player-with-item game1 playerId item))
+                      game0
+                      (:initialItems character)))
+            game characters)))

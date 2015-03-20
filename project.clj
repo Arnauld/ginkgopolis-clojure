@@ -25,4 +25,5 @@
             :source-paths ["src/clj" "src/cljs"]
             :test-paths ["spec/clj"]
 
-            :aliases {"cljs" ["do" "clean," "cljsbuild" "once" "dev"]})
+            :aliases {"cljs" ["do" "clean," "cljsbuild" "once" "dev"]
+                      "test-all" ["do" ["test"] ["spec"]]})
