@@ -175,10 +175,11 @@
       ))
 
 (defn- new-character
-  ([color initialItems action]
-   (new-character color initialItems action nil))
-  ([color initialItems action groupId]
-   {:card-type    :character
+  ([id color initialItems action]
+   (new-character id color initialItems action nil))
+  ([id color initialItems action groupId]
+   {:id           id
+    :card-type    :character
     :color        color
     :action       action
     :initialItems initialItems
@@ -187,109 +188,109 @@
 (defn character-cards []
   [
    ; ---
-   (new-character :red
+   (new-character 1 :red
                   [:resource :point :tile]
                   (on-action :urbanization [resource-gain])
                   1)
-   (new-character :yellow
+   (new-character 2 :yellow
                   [:resource :resource :point :tile]
                   (on-action :floor-construction [point-gain])
                   1)
-   (new-character :blue
+   (new-character 3 :blue
                   [:resource]
                   (on-action :floor-construction [tile-gain])
                   1)
    ; ---
-   (new-character :red
+   (new-character 4 :red
                   [:tile]
                   (on-action :floor-construction [resource-gain])
                   2)
-   (new-character :yellow
+   (new-character 5 :yellow
                   [:resource :resource :point :tile]
                   (on-action :floor-construction [point-gain])
                   2)
-   (new-character :blue
+   (new-character 6 :blue
                   [:resource :resource :point]
                   (on-action :exploit [tile-gain])
                   2)
    ; ---
-   (new-character :red
+   (new-character 7 :red
                   [:resource :point :tile]
                   (on-action :exploit [resource-gain])
                   3)
-   (new-character :yellow
+   (new-character 8 :yellow
                   [:resource :resource :point :point :tile]
                   (on-action :urbanization [point-gain])
                   3)
-   (new-character :blue
+   (new-character 9 :blue
                   [:resource :resource :point]
                   (on-action :urbanization [tile-gain])
                   3)
    ; ---
-   (new-character :red
+   (new-character 10 :red
                   [:resource :point :tile]
                   (on-action :urbanization [resource-gain])
                   4)
-   (new-character :yellow
+   (new-character 11 :yellow
                   [:resource :resource :point :point :tile]
                   (on-action :urbanization [point-gain])
                   4)
-   (new-character :blue
+   (new-character 12 :blue
                   [:resource]
                   (on-action :floor-construction [tile-gain])
                   4)
    ; ---
-   (new-character :red
+   (new-character 13 :red
                   [:resource :point :tile]
                   (on-action :exploit [resource-gain])
                   5)
-   (new-character :yellow
+   (new-character 14 :yellow
                   [:resource :resource :point :point :tile]
                   (on-action :exploit [point-gain])
                   5)
-   (new-character :blue
+   (new-character 15 :blue
                   [:resource]
                   (on-action :floor-construction [tile-gain])
                   5)
    ; ---
-   (new-character :red
+   (new-character 16 :red
                   [:resource :point :tile]
                   (on-action :urbanization [resource-gain])
                   6)
-   (new-character :yellow
+   (new-character 17 :yellow
                   [:resource :resource :point :point :tile]
                   (on-action :exploit [point-gain])
                   6)
-   (new-character :blue
+   (new-character 18 :blue
                   [:resource :resource :point]
                   (on-action :exploit [tile-gain])
                   6)
    ; ---
-   (new-character :blue
+   (new-character 19 :blue
                   [:resource :resource :point]
                   (on-action :urbanization [tile-gain]))
-   (new-character :blue
+   (new-character 20 :blue
                   [:resource :resource :point]
                   (on-action :urbanization [tile-gain]))
-   (new-character :red
+   (new-character 21 :red
                   [:tile]
                   (on-action :floor-construction [resource-gain]))
-   (new-character :red
+   (new-character 22 :red
                   [:tile]
                   (on-action :floor-construction [resource-gain]))
-   (new-character :red
+   (new-character 23 :red
                   [:tile]
                   (on-action :floor-construction [resource-gain]))
-   (new-character :red
+   (new-character 24 :red
                   [:resource :point :tile]
                   (on-action :exploit [resource-gain]))
-   (new-character :red
+   (new-character 25 :red
                   [:resource :point :tile]
                   (on-action :exploit [resource-gain]))
-   (new-character :blue
+   (new-character 26 :blue
                   [:resource :resource :point]
                   (on-action :exploit [tile-gain]))
-   (new-character :red
+   (new-character 27 :red
                   [:resource :point :tile]
                   (on-action :urbanization [resource-gain]))
    ])
@@ -340,8 +341,8 @@
                           (drop 6 remaining-tiles)
                           remaining-tiles)
         board (zipmap (shuffleFn [[-1 1] [0 1] [1 1]
-                                [-1 0] [0 0] [1 0]
-                                [-1 -1] [0 -1] [1 -1]]) (:setup tiles))]
+                                  [-1 0] [0 0] [1 0]
+                                  [-1 -1] [0 -1] [1 -1]]) (:setup tiles))]
     {:city                 board
      :tiles-general-supply remaining-tiles}))
 
@@ -362,8 +363,17 @@
                                   (into urbanizationCards)
                                   (into (filter #(<= (:number %) 3) buildingCards))))}))
 
+(defn prepare-resources [conf]
+  (let [nbPlayers (:nbPlayers conf)
+        nbResourcePerPlayer (cond (= 2 nbPlayers) 25
+                                  (= 3 nbPlayers) 20
+                                  (= 4 nbPlayers) 18
+                                  (= 5 nbPlayers) 16
+                                  :else (throw (UnsupportedOperationException. "Invalid number of players")))
+        players (range 1 (inc nbPlayers))]
+    {:resources-general-supply (zipmap players (repeat nbPlayers nbResourcePerPlayer))}))
 
-(defn prepare-characters [conf]
+(defn predefined-characters-shuffle [conf]
   (let [nbPlayers (:nbPlayers conf)
         characterCards ((:characterCards conf))
         characterCards (group-by :groupId characterCards)
@@ -372,10 +382,24 @@
         groupIds (take nbPlayers groupIds)
         characterCardsDistribution (map #(get characterCards %) groupIds)
         players (range 1 (inc nbPlayers))]
-    {:players (zipmap players characterCardsDistribution)}))
+    (zipmap players characterCardsDistribution)))
+
+
+(defn prepare-players [conf]
+  (let [nbPlayers (:nbPlayers conf)
+        characterCardsPerPlayer ((:charactersFn conf) conf)
+        players (range 1 (inc nbPlayers))
+        playerFn (fn [playerId]
+                   {:characters      (get characterCardsPerPlayer playerId)
+                    :new-hand-tokens 2})
+        playersData (reduce (fn [ps playerId]
+                              (assoc ps playerId (playerFn playerId)))
+                            {} players)]
+    {:players playersData}))
 
 (defn default-conf []
   {:nbPlayers         2
+   :charactersFn      predefined-characters-shuffle
    :buildingTiles     building-tiles
    :buildingCards     building-cards
    :urbanizationCards urbanization-cards
@@ -389,8 +413,10 @@
   ([conf]
    (let [adjustedConf (into (default-conf) conf)]
      (-> {}
+         (assoc :nbPlayers (:nbPlayers adjustedConf))
          (into (prepare-tiles adjustedConf))
          (into (prepare-urbanization-markers adjustedConf))
          (into (prepare-deck adjustedConf))
-         (into (prepare-characters adjustedConf))
+         (into (prepare-resources adjustedConf))
+         (into (prepare-players adjustedConf))
          ))))

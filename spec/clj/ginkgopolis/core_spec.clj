@@ -59,7 +59,7 @@
 
 (describe "The Building cards"
           (it "should contain 60 cards"
-               (should= 60 (count (building-cards))))
+              (should= 60 (count (building-cards))))
           (it "should all be typed 'building'"
               (should= (count (building-cards)) (count-for-type (building-cards) :building)))
           (it "should contain 20 blue cards"
@@ -79,9 +79,16 @@
           (it "should contain 27 cards"
               (should= 27 (count (character-cards))))
           (it "should be typed 'character'"
-              (should= 27 (count-for-type (character-cards) :character))))
+              (should= 27 (count-for-type (character-cards) :character)))
+          (it "should have all different ids"
+              (let [ids (map #(:id %) (character-cards))
+                    uniques (set ids)]
+                (should= 27 (count uniques)))))
 
 (describe "Game setup"
+          (it "should default to 2 players"
+              (should= 2 (:nbPlayers (setup))))
+
           (it "should place the 9 building tiles numbered from 1, 2 and 3 for each color"
               (let [setup (setup)
                     setup-tiles-by-coord (:city setup)
@@ -124,6 +131,8 @@
               (should= 45 (count (:tiles-general-supply (setup {:nbPlayers 3})))))
           (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 4 players setup"
               (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 4})))))
+          (it "should contain 51 (= 60 -9) remaining tiles in the pile for a 5 players setup"
+              (should= 51 (count (:tiles-general-supply (setup {:nbPlayers 5})))))
 
           (it "should prepare the deck by shuffling together the 12 urbanization cards and the 9 building cards"
               (let [setup (setup)
@@ -131,6 +140,44 @@
                 (should= 12 (count-for-type deck :urbanization))
                 (should= 9 (count-for-type deck :building))
                 (should= 21 (count deck))))
+
+          (it "should allocate, for 5 players, 16 resources per player in the general supply"
+              (let [setup (setup {:nbPlayers 5})
+                    resources (:resources-general-supply setup)]
+                (should= [16 16 16 16 16] (vals resources))))
+          (it "should allocate, for 4 players, 18 resources per player in the general supply"
+              (let [setup (setup {:nbPlayers 4})
+                    resources (:resources-general-supply setup)]
+                (should= [18 18 18 18] (vals resources))))
+          (it "should allocate, for 3 players, 20 resources per player in the general supply"
+              (let [setup (setup {:nbPlayers 3})
+                    resources (:resources-general-supply setup)]
+                (should= [20 20 20] (vals resources))))
+          (it "should allocate, for 2 players, 25 resources per player in the general supply"
+              (let [setup (setup {:nbPlayers 2})
+                    resources (:resources-general-supply setup)]
+                (should= [25 25] (vals resources))))
+
+          (it "should distribute 3 characters to each players - 2 players case"
+              (let [setup (setup)
+                    players (:players setup)]
+                (should= [3 3] (map #(count (:characters %)) (vals players)))))
+          (it "should distribute 3 characters to each players - 5 players case"
+              (let [setup (setup {:nbPlayers 5})
+                    players (:players setup)]
+                (should= [3 3 3 3 3] (map #(count (:characters %)) (vals players)))))
+          (it "should *randomly* distribute 3 characters to each players - 2 players case"
+              (let [setup (setup)
+                    players (:players setup)]
+                (should-not= (get-in players [1 :characters])
+                             (get-in players [2 :characters]))))
+          (it "should *randomly* distribute 3 characters to each players - 5 players case"
+              (let [setup (setup {:nbPlayers 5})
+                    players (:players setup)
+                    characterIds (reduce (fn [uniques [k v]]
+                                           (apply conj uniques
+                                                  (map :id (:characters v)))) #{} players)]
+                (should= 15 (count characterIds))))
           )
 
 (run-specs)
