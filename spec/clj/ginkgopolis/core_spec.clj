@@ -192,4 +192,7 @@
                 (should= [0 0 0 0 0] (map #(:points %) (vals players)))))
           )
 
+(describe "Game round - Conservative checks"
+          (it "should ensure that when joining tiles from city, from the pile and from the player hands, one has the overall setup tiles"))
+
 (run-specs)

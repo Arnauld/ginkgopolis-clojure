@@ -423,3 +423,11 @@
          (into (prepare-resources adjustedConf))
          (into (prepare-players adjustedConf))
          ))))
+
+;         _
+;   _ __ | | __ _ _   _
+;  | '_ \| |/ _` | | | |
+;  | |_) | | (_| | |_| |
+;  | .__/|_|\__,_|\__, |
+;  |_|            |___/
+
