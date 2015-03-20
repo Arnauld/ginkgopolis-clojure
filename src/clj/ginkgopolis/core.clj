@@ -329,10 +329,11 @@
 
 (defn prepare-tiles [conf]
   (let [nbPlayers (:nbPlayers conf)
+        buildingTiles ((:buildingTiles conf))
         tiles (group-by (fn [tile]
                           (if (<= (:number tile) 3)
                             :setup
-                            :remaining)) (building-tiles))
+                            :remaining)) buildingTiles)
         remaining-tiles (shuffle (:remaining tiles))
         remaining-tiles (if (or (= 2 nbPlayers) (= 3 nbPlayers))
                           (drop 6 remaining-tiles)
@@ -354,14 +355,22 @@
                           :j [-2 -1]}})
 
 (defn prepare-deck [conf]
-  {:deck (shuffle (-> []
-                      (into (urbanization-cards))
-                      (into (filter #(<= (:number %) 3) (building-cards)))))})
+  (let [urbanizationCards ((:urbanizationCards conf))
+        buildingCards ((:buildingCards conf))]
+    {:deck (shuffle (-> []
+                        (into urbanizationCards)
+                        (into (filter #(<= (:number %) 3) buildingCards))))}))
 
-(defn default-conf [] {:nbPlayers 2})
 
 (defn prepare-characters [adjustedConf]
   {})
+
+(defn default-conf []
+  {:nbPlayers         2
+   :buildingTiles     building-tiles
+   :buildingCards     building-cards
+   :urbanizationCards urbanization-cards})
+
 
 (defn setup
   ([]
