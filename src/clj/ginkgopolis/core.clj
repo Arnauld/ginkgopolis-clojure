@@ -98,74 +98,74 @@
 
 (defn building-cards-blue []
   [
-   (new-building-card :blue 1 (on-action :exploit [tile-gain]))
-   (new-building-card :blue 2 (on-action :urbanization [tile-gain]))
-   (new-building-card :blue 3 (on-action :floor-construction [tile-gain]))
-   (new-building-card :blue 4 (on-action :exploit [tile-gain]))
-   (new-building-card :blue 5 (on-action :urbanization [tile-gain]))
-   (new-building-card :blue 6 (on-action :floor-construction [tile-gain]))
-   (new-building-card :blue 7 (on-action :exploit [tile-gain point-gain]))
-   (new-building-card :blue 8 (on-action :urbanization [tile-gain point-gain]))
-   (new-building-card :blue 9 (on-action :floor-construction [tile-gain point-gain]))
-   (new-building-card :blue 10 (on-endgame (tile-color-bonus :blue)))
-   (new-building-card :blue 11 (on-endgame (tile-color-bonus :red)))
-   (new-building-card :blue 12 (on-endgame (tile-color-bonus :yellow)))
-   (new-building-card :blue 13 (on-endgame (tile-color-bonus :blue)))
-   (new-building-card :blue 14 (on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
-   (new-building-card :blue 15 (on-endgame (tile-height-bonus #(<= 3 %) 3)))
-   (new-building-card :blue 16 (on-endgame (card-type-bonus :exploit 2)))
-   (new-building-card :blue 17 (on-endgame (card-type-bonus :urbanization 2)))
-   (new-building-card :blue 18 (on-endgame (card-type-bonus :floor-construction 2)))
-   (new-building-card :blue 19 (on-endgame (card-color-bonus :blue 2)))
-   (new-building-card :blue 20 (on-endgame (point-bonus 9)))
+   (new-building-card :blue 1 '(on-action :exploit [tile-gain]))
+   (new-building-card :blue 2 '(on-action :urbanization [tile-gain]))
+   (new-building-card :blue 3 '(on-action :floor-construction [tile-gain]))
+   (new-building-card :blue 4 '(on-action :exploit [tile-gain]))
+   (new-building-card :blue 5 '(on-action :urbanization [tile-gain]))
+   (new-building-card :blue 6 '(on-action :floor-construction [tile-gain]))
+   (new-building-card :blue 7 '(on-action :exploit [tile-gain point-gain]))
+   (new-building-card :blue 8 '(on-action :urbanization [tile-gain point-gain]))
+   (new-building-card :blue 9 '(on-action :floor-construction [tile-gain point-gain]))
+   (new-building-card :blue 10 '(on-endgame (tile-color-bonus :blue)))
+   (new-building-card :blue 11 '(on-endgame (tile-color-bonus :red)))
+   (new-building-card :blue 12 '(on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :blue 13 '(on-endgame (tile-color-bonus :blue)))
+   (new-building-card :blue 14 '(on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
+   (new-building-card :blue 15 '(on-endgame (tile-height-bonus #(<= 3 %) 3)))
+   (new-building-card :blue 16 '(on-endgame (card-type-bonus :exploit 2)))
+   (new-building-card :blue 17 '(on-endgame (card-type-bonus :urbanization 2)))
+   (new-building-card :blue 18 '(on-endgame (card-type-bonus :floor-construction 2)))
+   (new-building-card :blue 19 '(on-endgame (card-color-bonus :blue 2)))
+   (new-building-card :blue 20 '(on-endgame (point-bonus 9)))
    ])
 
 (defn building-cards-yellow []
   [
-   (new-building-card :yellow 1 (on-action :exploit [point-gain]))
-   (new-building-card :yellow 2 (on-action :urbanization [point-gain]))
-   (new-building-card :yellow 3 (on-action :floor-construction [point-gain]))
-   (new-building-card :yellow 4 (on-action :exploit [point-gain]))
-   (new-building-card :yellow 5 (on-action :urbanization [point-gain]))
-   (new-building-card :yellow 6 (on-action :floor-construction [point-gain]))
-   (new-building-card :yellow 7 (on-action :exploit [point-gain point-gain]))
-   (new-building-card :yellow 8 (on-action :urbanization [point-gain point-gain]))
-   (new-building-card :yellow 9 (on-action :floor-construction [point-gain point-gain]))
-   (new-building-card :yellow 10 (on-endgame (tile-color-bonus :yellow)))
-   (new-building-card :yellow 11 (on-endgame (tile-color-bonus :red)))
-   (new-building-card :yellow 12 (on-endgame (tile-color-bonus :blue)))
-   (new-building-card :yellow 13 (on-endgame (tile-color-bonus :yellow)))
-   (new-building-card :yellow 14 (on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
-   (new-building-card :yellow 15 (on-endgame (tile-height-bonus #(<= 3 %) 3)))
-   (new-building-card :yellow 16 (on-endgame (card-type-bonus :exploit 2)))
-   (new-building-card :yellow 17 (on-endgame (card-type-bonus :urbanization 2)))
-   (new-building-card :yellow 18 (on-endgame (card-type-bonus :floor-construction 2)))
-   (new-building-card :yellow 19 (on-endgame (card-color-bonus :yellow 2)))
-   (new-building-card :yellow 20 (on-endgame (point-bonus 9)))
+   (new-building-card :yellow 1 '(on-action :exploit [point-gain]))
+   (new-building-card :yellow 2 '(on-action :urbanization [point-gain]))
+   (new-building-card :yellow 3 '(on-action :floor-construction [point-gain]))
+   (new-building-card :yellow 4 '(on-action :exploit [point-gain]))
+   (new-building-card :yellow 5 '(on-action :urbanization [point-gain]))
+   (new-building-card :yellow 6 '(on-action :floor-construction [point-gain]))
+   (new-building-card :yellow 7 '(on-action :exploit [point-gain point-gain]))
+   (new-building-card :yellow 8 '(on-action :urbanization [point-gain point-gain]))
+   (new-building-card :yellow 9 '(on-action :floor-construction [point-gain point-gain]))
+   (new-building-card :yellow 10 '(on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :yellow 11 '(on-endgame (tile-color-bonus :red)))
+   (new-building-card :yellow 12 '(on-endgame (tile-color-bonus :blue)))
+   (new-building-card :yellow 13 '(on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :yellow 14 '(on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
+   (new-building-card :yellow 15 '(on-endgame (tile-height-bonus #(<= 3 %) 3)))
+   (new-building-card :yellow 16 '(on-endgame (card-type-bonus :exploit 2)))
+   (new-building-card :yellow 17 '(on-endgame (card-type-bonus :urbanization 2)))
+   (new-building-card :yellow 18 '(on-endgame (card-type-bonus :floor-construction 2)))
+   (new-building-card :yellow 19 '(on-endgame (card-color-bonus :yellow 2)))
+   (new-building-card :yellow 20 '(on-endgame (point-bonus 9)))
    ])
 
 (defn building-cards-red []
   [
-   (new-building-card :red 1 (on-action :exploit [resource-gain]))
-   (new-building-card :red 2 (on-action :urbanization [resource-gain]))
-   (new-building-card :red 3 (on-action :floor-construction [resource-gain]))
-   (new-building-card :red 4 (on-action :exploit [resource-gain]))
-   (new-building-card :red 5 (on-action :urbanization [resource-gain]))
-   (new-building-card :red 6 (on-action :floor-construction [resource-gain]))
-   (new-building-card :red 7 (on-action :exploit [resource-gain point-gain]))
-   (new-building-card :red 8 (on-action :urbanization [resource-gain point-gain]))
-   (new-building-card :red 9 (on-action :floor-construction [resource-gain point-gain]))
-   (new-building-card :red 10 (on-endgame (tile-color-bonus :red)))
-   (new-building-card :red 11 (on-endgame (tile-color-bonus :yellow)))
-   (new-building-card :red 12 (on-endgame (tile-color-bonus :blue)))
-   (new-building-card :red 13 (on-endgame (tile-color-bonus :red)))
-   (new-building-card :red 14 (on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
-   (new-building-card :red 15 (on-endgame (tile-height-bonus #(<= 3 %) 3)))
-   (new-building-card :red 16 (on-endgame (card-type-bonus :exploit 2)))
-   (new-building-card :red 17 (on-endgame (card-type-bonus :urbanization 2)))
-   (new-building-card :red 18 (on-endgame (card-type-bonus :floor-construction 2)))
-   (new-building-card :red 19 (on-endgame (card-color-bonus :red 2)))
-   (new-building-card :red 20 (on-endgame (point-bonus 9)))
+   (new-building-card :red 1 '(on-action :exploit [resource-gain]))
+   (new-building-card :red 2 '(on-action :urbanization [resource-gain]))
+   (new-building-card :red 3 '(on-action :floor-construction [resource-gain]))
+   (new-building-card :red 4 '(on-action :exploit [resource-gain]))
+   (new-building-card :red 5 '(on-action :urbanization [resource-gain]))
+   (new-building-card :red 6 '(on-action :floor-construction [resource-gain]))
+   (new-building-card :red 7 '(on-action :exploit [resource-gain point-gain]))
+   (new-building-card :red 8 '(on-action :urbanization [resource-gain point-gain]))
+   (new-building-card :red 9 '(on-action :floor-construction [resource-gain point-gain]))
+   (new-building-card :red 10 '(on-endgame (tile-color-bonus :red)))
+   (new-building-card :red 11 '(on-endgame (tile-color-bonus :yellow)))
+   (new-building-card :red 12 '(on-endgame (tile-color-bonus :blue)))
+   (new-building-card :red 13 '(on-endgame (tile-color-bonus :red)))
+   (new-building-card :red 14 '(on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
+   (new-building-card :red 15 '(on-endgame (tile-height-bonus #(<= 3 %) 3)))
+   (new-building-card :red 16 '(on-endgame (card-type-bonus :exploit 2)))
+   (new-building-card :red 17 '(on-endgame (card-type-bonus :urbanization 2)))
+   (new-building-card :red 18 '(on-endgame (card-type-bonus :floor-construction 2)))
+   (new-building-card :red 19 '(on-endgame (card-color-bonus :red 2)))
+   (new-building-card :red 20 '(on-endgame (point-bonus 9)))
    ])
 
 (defn building-cards []
@@ -191,109 +191,109 @@
    ; ---
    (new-character 1 :red
                   [:resource :point :tile]
-                  (on-action :urbanization [resource-gain])
+                  '(on-action :urbanization [resource-gain])
                   1)
    (new-character 2 :yellow
                   [:resource :resource :point :tile]
-                  (on-action :floor-construction [point-gain])
+                  '(on-action :floor-construction [point-gain])
                   1)
    (new-character 3 :blue
                   [:resource]
-                  (on-action :floor-construction [tile-gain])
+                  '(on-action :floor-construction [tile-gain])
                   1)
    ; ---
    (new-character 4 :red
                   [:tile]
-                  (on-action :floor-construction [resource-gain])
+                  '(on-action :floor-construction [resource-gain])
                   2)
    (new-character 5 :yellow
                   [:resource :resource :point :tile]
-                  (on-action :floor-construction [point-gain])
+                  '(on-action :floor-construction [point-gain])
                   2)
    (new-character 6 :blue
                   [:resource :resource :point]
-                  (on-action :exploit [tile-gain])
+                  '(on-action :exploit [tile-gain])
                   2)
    ; ---
    (new-character 7 :red
                   [:resource :point :tile]
-                  (on-action :exploit [resource-gain])
+                  '(on-action :exploit [resource-gain])
                   3)
    (new-character 8 :yellow
                   [:resource :resource :point :point :tile]
-                  (on-action :urbanization [point-gain])
+                  '(on-action :urbanization [point-gain])
                   3)
    (new-character 9 :blue
                   [:resource :resource :point]
-                  (on-action :urbanization [tile-gain])
+                  '(on-action :urbanization [tile-gain])
                   3)
    ; ---
    (new-character 10 :red
                   [:resource :point :tile]
-                  (on-action :urbanization [resource-gain])
+                  '(on-action :urbanization [resource-gain])
                   4)
    (new-character 11 :yellow
                   [:resource :resource :point :point :tile]
-                  (on-action :urbanization [point-gain])
+                  '(on-action :urbanization [point-gain])
                   4)
    (new-character 12 :blue
                   [:resource]
-                  (on-action :floor-construction [tile-gain])
+                  '(on-action :floor-construction [tile-gain])
                   4)
    ; ---
    (new-character 13 :red
                   [:resource :point :tile]
-                  (on-action :exploit [resource-gain])
+                  '(on-action :exploit [resource-gain])
                   5)
    (new-character 14 :yellow
                   [:resource :resource :point :point :tile]
-                  (on-action :exploit [point-gain])
+                  '(on-action :exploit [point-gain])
                   5)
    (new-character 15 :blue
                   [:resource]
-                  (on-action :floor-construction [tile-gain])
+                  '(on-action :floor-construction [tile-gain])
                   5)
    ; ---
    (new-character 16 :red
                   [:resource :point :tile]
-                  (on-action :urbanization [resource-gain])
+                  '(on-action :urbanization [resource-gain])
                   6)
    (new-character 17 :yellow
                   [:resource :resource :point :point :tile]
-                  (on-action :exploit [point-gain])
+                  '(on-action :exploit [point-gain])
                   6)
    (new-character 18 :blue
                   [:resource :resource :point]
-                  (on-action :exploit [tile-gain])
+                  '(on-action :exploit [tile-gain])
                   6)
    ; ---
    (new-character 19 :blue
                   [:resource :resource :point]
-                  (on-action :urbanization [tile-gain]))
+                  '(on-action :urbanization [tile-gain]))
    (new-character 20 :blue
                   [:resource :resource :point]
-                  (on-action :urbanization [tile-gain]))
+                  '(on-action :urbanization [tile-gain]))
    (new-character 21 :red
                   [:tile]
-                  (on-action :floor-construction [resource-gain]))
+                  '(on-action :floor-construction [resource-gain]))
    (new-character 22 :red
                   [:tile]
-                  (on-action :floor-construction [resource-gain]))
+                  '(on-action :floor-construction [resource-gain]))
    (new-character 23 :red
                   [:tile]
-                  (on-action :floor-construction [resource-gain]))
+                  '(on-action :floor-construction [resource-gain]))
    (new-character 24 :red
                   [:resource :point :tile]
-                  (on-action :exploit [resource-gain]))
+                  '(on-action :exploit [resource-gain]))
    (new-character 25 :red
                   [:resource :point :tile]
-                  (on-action :exploit [resource-gain]))
+                  '(on-action :exploit [resource-gain]))
    (new-character 26 :blue
                   [:resource :resource :point]
-                  (on-action :exploit [tile-gain]))
+                  '(on-action :exploit [tile-gain]))
    (new-character 27 :red
                   [:resource :point :tile]
-                  (on-action :urbanization [resource-gain]))
+                  '(on-action :urbanization [resource-gain]))
    ])
 
 ;     ___
