@@ -1,4 +1,5 @@
-(ns ginkgopolis.core)
+(ns ginkgopolis.core
+  (:import (java.util Random)))
 
 ;         _   _ _
 ;   _   _| |_(_) |___
@@ -407,6 +408,7 @@
    :buildingCards     building-cards
    :urbanizationCards urbanization-cards
    :characterCards    character-cards
+   :random            (Random. 42)
    :shuffleFn         shuffle})
 
 
@@ -417,6 +419,7 @@
    (let [adjustedConf (into (default-conf) conf)]
      (-> {}
          (assoc :nbPlayers (:nbPlayers adjustedConf))
+         (assoc :conf adjustedConf)
          (into (prepare-tiles adjustedConf))
          (into (prepare-urbanization-markers adjustedConf))
          (into (prepare-deck adjustedConf))
@@ -431,22 +434,22 @@
 ;  | .__/|_|\__,_|\__, |
 ;  |_|            |___/
 
-(defn update-player-with-resource [game playerId]
+(defn- update-player-with-resource [game playerId]
   (-> game
       (update-in [:players playerId :resources] inc)
       (update-in [:resources-general-supply playerId] dec)))
 
-(defn update-player-with-tile [game playerId]
+(defn- update-player-with-tile [game playerId]
   (let [headTile (first (:tiles-general-supply game))]
     (-> game
         (update-in [:players playerId :tiles] conj headTile)
         (update-in [:tiles-general-supply] rest))))
 
-(defn update-player-with-point [game playerId]
+(defn- update-player-with-point [game playerId]
   (-> game
       (update-in [:players playerId :points] inc)))
 
-(defn update-player-with-item [game playerId item]
+(defn- update-player-with-item [game playerId item]
   (cond (= item :resource) (update-player-with-resource game playerId)
         (= item :tile) (update-player-with-tile game playerId)
         (= item :point) (update-player-with-point game playerId)
@@ -460,3 +463,17 @@
                       game0
                       (:initialItems character)))
             game characters)))
+
+(defn get-first-player [game]
+  (:firstPlayer game))
+
+(defn define-first-player
+  ([game]
+   (let [nbPlayer (:nbPlayers game)
+         #^Random rnd (get-in game [:conf :random])]
+     (define-first-player game
+                          (inc
+                            (.nextInt rnd nbPlayer)))))
+  ([game playerId]
+   (assoc game :firstPlayer playerId)))
+

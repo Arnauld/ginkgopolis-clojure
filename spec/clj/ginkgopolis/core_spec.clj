@@ -292,7 +292,19 @@
           )
 
 (describe "Game round - Conservative checks"
-          (it "should have all initial tiles when joining all of them from city, pile and player hands")
-          (it "should have all initial resources when joining all of them from city and player hand"))
+          (xit "should have all initial tiles when joining all of them from city, pile and player hands")
+          (xit "should have all initial resources when joining all of them from city and player hand"))
+
+(describe "Game - select first player"
+          (it "should select the provided player as first one"
+              (let [setup (setup)
+                    game (define-first-player setup 2)]
+                (should= 2 (get-first-player game))))
+          (it "should select *randomly* a player if not provided"
+              (let [setup (setup {:nbPlayers 5})
+                    game1 (define-first-player setup)
+                    game2 (define-first-player setup)]
+                (should-not= (get-first-player game1)
+                             (get-first-player game2)))))
 
 (run-specs)
