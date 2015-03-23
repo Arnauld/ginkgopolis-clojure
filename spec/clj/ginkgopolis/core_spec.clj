@@ -228,6 +228,14 @@
               (let [setup (setup {:nbPlayers 5})
                     players (:players setup)]
                 (should= [0 0 0 0 0] (map #(:points %) (vals players)))))
+
+          (it "should set the round to 0"
+              (should= 0 (:round (setup))))
+
+          (it "should provide no card in players' hands"
+              (let [setup (setup {:nbPlayers 5})
+                    hands (:players-hands setup)]
+                (should= [[] [] [] [] []] (vals hands))))
           )
 
 (describe "Draft initial items"
@@ -306,5 +314,30 @@
                     game2 (define-first-player setup)]
                 (should-not= (get-first-player game1)
                              (get-first-player game2)))))
+
+(describe "Next round - distribute cards"
+          (it "should distribute 4 cards to each players for first round"
+              (let [game (-> (setup {:nbPlayers 3})
+                             (assoc :deck [:01 :02 :03 :04 :05 :06 :07 :08 :09 :10 :11 :12 :13 :14])
+                             (define-first-player)
+                             (next-round))
+                    hands (vals (:players-hands game))]
+                (should= 1 (:round game))
+                (should= [:01 :02 :03 :04 :05 :06 :07 :08 :09 :10 :11 :12]
+                         (sort (flatten hands)))))
+          (it "should rotate remaining cards to next player and complete up to 4 cards"
+              (let [game (-> (setup {:nbPlayers 3})
+                             (assoc :deck [:10 :11 :12 :13
+                                           :14 :15 :16 :17])
+                             (assoc :players-hands {1 [:01 :02 :03]
+                                                    2 [:04 :05 :06]
+                                                    3 [:07 :08 :09]})
+                             (define-first-player)
+                             (next-round))
+                    hands (:players-hands game)]
+                (should= [:07 :08 :09 :12] (get hands 1))
+                (should= [:01 :02 :03 :10] (get hands 2))
+                (should= [:04 :05 :06 :11] (get hands 3))))
+          )
 
 (run-specs)

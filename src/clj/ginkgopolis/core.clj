@@ -416,10 +416,14 @@
   ([]
    (setup (default-conf)))
   ([conf]
-   (let [adjustedConf (into (default-conf) conf)]
+   (let [adjustedConf (into (default-conf) conf)
+         nbPlayers (:nbPlayers adjustedConf)
+         emptyHands (reduce (fn [m pId] (assoc m pId [])) {} (range 1 (inc nbPlayers)))]
      (-> {}
-         (assoc :nbPlayers (:nbPlayers adjustedConf))
+         (assoc :nbPlayers nbPlayers)
          (assoc :conf adjustedConf)
+         (assoc :round 0)
+         (assoc :players-hands emptyHands)
          (into (prepare-tiles adjustedConf))
          (into (prepare-urbanization-markers adjustedConf))
          (into (prepare-deck adjustedConf))
@@ -476,4 +480,53 @@
                             (.nextInt rnd nbPlayer)))))
   ([game playerId]
    (assoc game :firstPlayer playerId)))
+
+(defn- ensure-identical-hands-size [hands]
+  (let [rhands (vals hands)
+        handSz (count (first rhands))
+        allSameSz (every? #(= (count %) handSz) rhands)]
+    (if-not allSameSz
+      (throw (IllegalStateException. "All hands have not the same size..." hands)))
+    handSz))
+
+(defn- rotate [xs]
+  (concat (rest xs) [(first xs)]))
+
+(defn- rotate-map [kvs]
+  (let [ks (keys kvs)
+        nb (count ks)
+        ks (cycle (sort ks))]
+    (loop [cnt nb
+           xs {}
+           hd (first ks)
+           rm (rest ks)]
+      (if (zero? cnt)
+        xs
+        (recur
+          (dec cnt)
+          (assoc xs (first rm) (get kvs hd))
+          (first rm)
+          (rest rm))))
+    ))
+
+(defn- repopulate-hands [game missingCards]
+  (let [hands (:players-hands game)
+        kands (sort (keys hands))
+        [newHands newDeck] (reduce
+                             (fn [[nh deck] k]
+                               (let [cards (take missingCards deck)
+                                     ndeck (drop missingCards deck)]
+                                 [(assoc nh k (concat (get hands k) cards)) ndeck]))
+                             [{} (:deck game)] kands)
+        newHands (rotate-map newHands)]
+    (-> game
+        (assoc :deck newDeck)
+        (assoc :players-hands newHands))))
+
+(defn next-round [game]
+  (let [handSz (ensure-identical-hands-size (:players-hands game))
+        missingCards (- 4 handSz)]
+    (-> game
+        (repopulate-hands missingCards)
+        (update-in [:round] inc))))
 
