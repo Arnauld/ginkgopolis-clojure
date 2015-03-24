@@ -1,6 +1,7 @@
 (ns ginkgopolis.core-spec
   (:require [speclj.core :refer :all]
-            [ginkgopolis.core :refer :all]))
+            [ginkgopolis.core :refer :all])
+  (:import (clojure.lang PersistentVector IPersistentMap)))
 
 ;         _   _ _
 ;   _   _| |_(_) |___
@@ -8,26 +9,45 @@
 ;  | |_| | |_| | \__ \
 ;   \__,_|\__|_|_|___/
 
+(defmulti card-type class)
+(defmethod card-type PersistentVector [[cardType _ _]]
+  cardType)
+(defmethod card-type IPersistentMap [card]
+  (:card-type card))
+
+(defmulti card-color class)
+(defmethod card-color PersistentVector [[_ cardColor _]]
+  cardColor)
+(defmethod card-color IPersistentMap [card]
+  (:color card))
+
+(defmulti card-letter class)
+(defmethod card-letter PersistentVector [[_ letter]]
+  letter)
+(defmethod card-letter IPersistentMap [card]
+  (:letter card))
+
+
 (defn- count-for-color [tiles color]
   (->> tiles
-       (filter #(= color (:color %)))
+       (filter #(= color (card-color %)))
        (count)))
 
 (defn- numbers-for-color [tiles color]
   (->> tiles
-       (filter #(= color (:color %)))
+       (filter #(= color (card-color %)))
        (map :number)
        (sort)))
 
 (defn- count-for-type [tiles type]
   (->> tiles
-       (filter #(= type (:card-type %)))
+       (filter #(= type (card-type %)))
        (count)))
 
 (defn- letter-for-type [tiles type]
   (->> tiles
-       (filter #(= type (:card-type %)))
-       (map :letter)
+       (filter #(= type (card-type %)))
+       (map card-letter)
        (sort)))
 
 (defn- card-with-number [cards number]
@@ -339,5 +359,15 @@
                 (should= [:01 :02 :03 :10] (get hands 2))
                 (should= [:04 :05 :06 :11] (get hands 3))))
           )
+
+
+
+(describe "Choose a card phase"
+          (it "should wait for all player to choose a card before switching to next phase"
+              (let [game (-> (setup {:nbPlayers 3})
+                             (take-initial-items-for-players)
+                             (define-first-player)
+                             (next-round))]
+                (println game))))
 
 (run-specs)

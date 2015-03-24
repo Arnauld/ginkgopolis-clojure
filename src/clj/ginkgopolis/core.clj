@@ -73,21 +73,28 @@
                   (conj {:number num :color :yellow})))
             [] numbers)))
 
-(defn urbanization-cards []
-  (map #(assoc % :card-type :urbanization)
-       [
-        {:letter :A}
-        {:letter :B}
-        {:letter :C}
-        {:letter :D}
-        {:letter :E}
-        {:letter :F}
-        {:letter :G}
-        {:letter :H}
-        {:letter :I}
-        {:letter :J}
-        {:letter :K}
-        {:letter :L}]))
+(defn urbanization-cards
+  ([] (urbanization-cards :light))
+  ([mode]
+   (let [cards (map #(assoc % :card-type :urbanization)
+                    [
+                     {:letter :A}
+                     {:letter :B}
+                     {:letter :C}
+                     {:letter :D}
+                     {:letter :E}
+                     {:letter :F}
+                     {:letter :G}
+                     {:letter :H}
+                     {:letter :I}
+                     {:letter :J}
+                     {:letter :K}
+                     {:letter :L}])
+         projection (cond (= mode :light) (fn [card]
+                                            [(:card-type card)
+                                             (:letter card)])
+                          :else identity)]
+     (map projection cards))))
 
 (defn- new-building-card [color number action]
   (-> {}
@@ -168,12 +175,19 @@
    (new-building-card :red 20 '(on-endgame (point-bonus 9)))
    ])
 
-(defn building-cards []
-  (-> []
-      (into (building-cards-blue))
-      (into (building-cards-yellow))
-      (into (building-cards-red))
-      ))
+(defn building-cards
+  ([] (building-cards :light))
+  ([mode]
+   (let [cards (-> []
+                   (into (building-cards-blue))
+                   (into (building-cards-yellow))
+                   (into (building-cards-red)))
+         projection (cond (= mode :light) (fn [card]
+                                            [(:card-type card)
+                                             (:color card)
+                                             (:number card)])
+                          :else identity)]
+     (map projection cards))))
 
 (defn new-character
   ([id color initialItems action]
@@ -362,7 +376,7 @@
         buildingCards ((:buildingCards conf))]
     {:deck ((:shuffleFn conf) (-> []
                                   (into urbanizationCards)
-                                  (into (filter #(<= (:number %) 3) buildingCards))))}))
+                                  (into (filter (fn [[_type _color number]] (<= number 3)) buildingCards))))}))
 
 (defn prepare-resources [conf]
   (let [nbPlayers (:nbPlayers conf)
@@ -421,7 +435,7 @@
          emptyHands (reduce (fn [m pId] (assoc m pId [])) {} (range 1 (inc nbPlayers)))]
      (-> {}
          (assoc :nbPlayers nbPlayers)
-         (assoc :conf adjustedConf)
+         (assoc :conf {:random (:random adjustedConf)})
          (assoc :round 0)
          (assoc :players-hands emptyHands)
          (into (prepare-tiles adjustedConf))
@@ -467,6 +481,13 @@
                       game0
                       (:initialItems character)))
             game characters)))
+
+(defn take-initial-items-for-players [game]
+  (loop [n (:nbPlayers game)
+         g game]
+    (if (zero? n)
+      g
+      (recur (dec n) (take-initial-items-for-player g n)))))
 
 (defn get-first-player [game]
   (:firstPlayer game))
