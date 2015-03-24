@@ -74,7 +74,7 @@
             [] numbers)))
 
 (defn urbanization-cards
-  ([] (urbanization-cards :light))
+  ([] (urbanization-cards :id))
   ([mode]
    (let [cards (map #(assoc % :card-type :urbanization)
                     [
@@ -90,7 +90,7 @@
                      {:letter :J}
                      {:letter :K}
                      {:letter :L}])
-         projection (cond (= mode :light) (fn [card]
+         projection (cond (= mode :id) (fn [card]
                                             [(:card-type card)
                                              (:letter card)])
                           :else identity)]
@@ -176,13 +176,13 @@
    ])
 
 (defn building-cards
-  ([] (building-cards :light))
+  ([] (building-cards :id))
   ([mode]
    (let [cards (-> []
                    (into (building-cards-blue))
                    (into (building-cards-yellow))
                    (into (building-cards-red)))
-         projection (cond (= mode :light) (fn [card]
+         projection (cond (= mode :id) (fn [card]
                                             [(:card-type card)
                                              (:color card)
                                              (:number card)])
