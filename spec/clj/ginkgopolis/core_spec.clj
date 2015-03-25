@@ -1,7 +1,6 @@
 (ns ginkgopolis.core-spec
   (:require [speclj.core :refer :all]
-            [ginkgopolis.core :refer :all])
-  (:import (clojure.lang PersistentVector IPersistentMap)))
+            [ginkgopolis.core :refer :all]))
 
 ;         _   _ _
 ;   _   _| |_(_) |___
@@ -9,75 +8,58 @@
 ;  | |_| | |_| | \__ \
 ;   \__,_|\__|_|_|___/
 
-(defmulti card-type class)
-(defmethod card-type PersistentVector [[cardType _ _]]
-  cardType)
-(defmethod card-type IPersistentMap [card]
-  (:card-type card))
-
-(defmulti card-color class)
-(defmethod card-color PersistentVector [[_ cardColor _]]
-  cardColor)
-(defmethod card-color IPersistentMap [card]
-  (:color card))
-
-(defmulti card-letter class)
-(defmethod card-letter PersistentVector [[_ letter]]
-  letter)
-(defmethod card-letter IPersistentMap [card]
-  (:letter card))
-
-
-(defn- count-for-color [tiles color]
-  (->> tiles
+(defn- count-for-color [keys color]
+  (->> keys
        (filter #(= color (card-color %)))
        (count)))
 
-(defn- numbers-for-color [tiles color]
-  (->> tiles
+(defn- numbers-for-color [keys color]
+  (->> keys
        (filter #(= color (card-color %)))
-       (map :number)
+       (map card-number)
        (sort)))
 
-(defn- count-for-type [tiles type]
-  (->> tiles
+(defn- count-for-type [keys type]
+  (->> keys
        (filter #(= type (card-type %)))
        (count)))
 
-(defn- letter-for-type [tiles type]
-  (->> tiles
+(defn- letter-for-type [keys type]
+  (->> keys
        (filter #(= type (card-type %)))
        (map card-letter)
        (sort)))
 
 (defn- card-with-number [cards number]
-  (some #(= number (:number %)) cards))
+  (some #(= number (card-number %)) cards))
 
-(defn predefined-character [id]
-  (cond (= id 1) (new-character :a :blue
+(defn predefined-character [dst id]
+  (cond (= id 1) (new-character dst :a :blue
                                 [:resource]
                                 (on-action :floor-construction [tile-gain])
                                 1)
-        (= id 2) (new-character :b :blue
+        (= id 2) (new-character dst :b :blue
                                 [:tile]
                                 (on-action :floor-construction [tile-gain])
                                 1)
-        (= id 3) (new-character :c :blue
+        (= id 3) (new-character dst :c :blue
                                 [:point]
                                 (on-action :exploit [tile-gain])
                                 1)
-        (= id 4) (new-character :d :yellow
+        (= id 4) (new-character dst :d :yellow
                                 [:resource :resource :point :tile]
                                 (on-action :floor-construction [point-gain])
                                 1)
-        (= id 5) (new-character :e :red
+        (= id 5) (new-character dst :e :red
                                 [:resource :point :tile]
                                 (on-action :urbanization [resource-gain])
                                 1)
         :else (throw (IllegalArgumentException. (str "Invalid predefined character: " id)))))
 
 (defn redefine-characters [game playerId characters]
-  (assoc-in game [:players playerId :characters] characters))
+  (-> game
+      (assoc-in [:characterCards] characters)
+      (assoc-in [:players playerId :characters] (keys characters))))
 
 ;   ___ _ __   ___  ___ ___
 ;  / __| '_ \ / _ \/ __/ __|
@@ -97,35 +79,35 @@
           (it "should contain 60 tiles"
               (should= 60 (count (building-tiles))))
           (it "should contain 20 blue tiles numbered from 1 to 20"
-              (should= 20 (count-for-color (building-tiles) :blue))
-              (should= (range 1 21) (numbers-for-color (building-tiles) :blue)))
+              (should= 20 (count-for-color (keys (building-tiles)) :blue))
+              (should= (range 1 21) (numbers-for-color (keys (building-tiles)) :blue)))
           (it "should contain 20 yellow tiles numbered from 1 to 20"
-              (should= 20 (count-for-color (building-tiles) :yellow))
-              (should= (range 1 21) (numbers-for-color (building-tiles) :yellow)))
+              (should= 20 (count-for-color (keys (building-tiles)) :yellow))
+              (should= (range 1 21) (numbers-for-color (keys (building-tiles)) :yellow)))
           (it "should contain 20 red tiles numbered from 1 to 20"
-              (should= 20 (count-for-color (building-tiles) :red))
-              (should= (range 1 21) (numbers-for-color (building-tiles) :red))))
+              (should= 20 (count-for-color (keys (building-tiles)) :red))
+              (should= (range 1 21) (numbers-for-color (keys (building-tiles)) :red))))
 
 (describe "The Urbanization cards"
           (it "should contain 12 cards"
               (should= 12 (count (urbanization-cards))))
           (it "should be typed 'urbanization'"
-              (should= 12 (count-for-type (urbanization-cards) :urbanization)))
+              (should= 12 (count-for-type (keys (urbanization-cards)) :urbanization)))
           (it "should be lettered from 'A' to 'L'"
               (should= '(:A :B :C :D :E :F :G :H :I :J :K :L)
-                       (letter-for-type (urbanization-cards) :urbanization))))
+                       (letter-for-type (keys (urbanization-cards)) :urbanization))))
 
 (describe "The Building cards"
           (it "should contain 60 cards"
               (should= 60 (count (building-cards))))
           (it "should all be typed 'building'"
-              (should= (count (building-cards)) (count-for-type (building-cards) :building)))
+              (should= (count (building-cards)) (count-for-type (keys (building-cards)) :building)))
           (it "should contain 20 blue cards"
-              (should= 20 (count-for-color (building-cards) :blue)))
+              (should= 20 (count-for-color (keys (building-cards)) :blue)))
           (it "should contain 20 yellow cards"
-              (should= 20 (count-for-color (building-cards) :yellow)))
+              (should= 20 (count-for-color (keys (building-cards)) :yellow)))
           (it "should contain 20 red cards"
-              (should= 20 (count-for-color (building-cards) :red))))
+              (should= 20 (count-for-color (keys (building-cards)) :red))))
 
 (describe "Building card action - red ones"
           (xit "should for card #1: gain a resource on exploit action"
@@ -133,19 +115,26 @@
                      action (new-action card)]
                  (should-not-be-nil card))))
 
+(describe "Character id"
+          (it "should be equal when defined identically"
+              (should= (->character-id 1 :blue) (->character-id 1 :blue)))
+          (it "should not be equal when defined differently"
+              (should-not= (->character-id 1 :blue) (->character-id 5 :blue))
+              (should-not= (->character-id 1 :blue) (->character-id 1 :pink))))
+
 (describe "The Character cards"
           (it "should contain 27 cards"
               (should= 27 (count (character-cards))))
           (it "should be typed 'character'"
-              (should= 27 (count-for-type (character-cards) :character)))
+              (should= 27 (count-for-type (keys (character-cards)) :character)))
           (it "should have all different ids"
-              (let [ids (map #(:id %) (character-cards))
+              (let [ids (keys (character-cards))
                     uniques (set ids)]
                 (should= 27 (count uniques)))))
 
 (describe "Game setup"
           (it "should default to 2 players"
-              (should= 2 (:nbPlayers (setup))))
+              (should= 2 (get-in (setup) [:conf :nbPlayers])))
 
           (it "should place the 9 building tiles numbered from 1, 2 and 3 for each color"
               (let [setup (setup)
@@ -261,8 +250,10 @@
 (describe "Draft initial items"
           (it "should increase player's resource when character allow it - resource only"
               (let [playerId 1
+                    characters (-> {}
+                                   (predefined-character 1))
                     setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId [(predefined-character 1)])
+                    setup (redefine-characters setup playerId characters)
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
                     oplayers (vals (dissoc players playerId))]
@@ -275,8 +266,10 @@
 
           (it "should add a tile to player when character allow it - tile only"
               (let [playerId 3
+                    characters (-> {}
+                                   (predefined-character 2))
                     setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId [(predefined-character 2)])
+                    setup (redefine-characters setup playerId characters)
                     tile1 (first (get-in setup [:tiles-general-supply]))
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
@@ -289,8 +282,10 @@
 
           (it "should add a point to player when character allow it - point only"
               (let [playerId 4
+                    characters (-> {}
+                                   (predefined-character 3))
                     setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId [(predefined-character 3)])
+                    setup (redefine-characters setup playerId characters)
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
                     oplayers (vals (dissoc players playerId))]
@@ -302,8 +297,10 @@
 
           (it "should add resources, a tile and a point to player when character allow it - multiple items"
               (let [playerId 5
+                    characters (-> {}
+                                   (predefined-character 4))
                     setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId [(predefined-character 4)])
+                    setup (redefine-characters setup playerId characters)
                     tile1 (first (get-in setup [:tiles-general-supply]))
                     update (take-initial-items-for-player setup playerId)
                     players (:players update)
