@@ -56,10 +56,9 @@
                                 1)
         :else (throw (IllegalArgumentException. (str "Invalid predefined character: " id)))))
 
-(defn redefine-characters [game playerId characters]
+(defn redefine-characters [game playerId characterIds]
   (-> game
-      (assoc-in [:characterCards] characters)
-      (assoc-in [:players playerId :characters] (keys characters))))
+      (assoc-in [:players playerId :characters] characterIds)))
 
 ;   ___ _ __   ___  ___ ___
 ;  / __| '_ \ / _ \/ __/ __|
@@ -247,18 +246,20 @@
                 (should= [[] [] [] [] []] (vals hands))))
           )
 
+(describe "Character's initial items"
+          (it "should provide chracter's initial items - resource only"
+              (let [game (setup)]
+                (should= [:resource] (initial-items-of game (->character-id 3 :blue))))))
+
 (describe "Draft initial items"
           (it "should increase player's resource when character allow it - resource only"
               (let [playerId 1
-                    characters (-> {}
-                                   (predefined-character 1))
-                    setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId characters)
-                    update (take-initial-items-for-player setup playerId)
-                    players (:players update)
-                    oplayers (vals (dissoc players playerId))]
-                (should= 1 (get-in update [:players playerId :resources]))
-                (should= 15 (get-in update [:resources-general-supply playerId]))
+                    game (-> (setup {:nbPlayers 5})
+                             (redefine-characters playerId [(->character-id 3 :blue)])
+                             (take-initial-items-for-player playerId))
+                    oplayers (vals (dissoc (:players game) playerId))]
+                (should= 1 (get-in game [:players playerId :resources]))
+                (should= 15 (get-in game [:resources-general-supply playerId]))
                 ; everything else should remain unchanged
                 (should= [0 0 0 0] (map #(:resources %) oplayers))
                 (should= [0 0 0 0] (map #(:points %) oplayers))
@@ -266,30 +267,12 @@
 
           (it "should add a tile to player when character allow it - tile only"
               (let [playerId 3
-                    characters (-> {}
-                                   (predefined-character 2))
-                    setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId characters)
-                    tile1 (first (get-in setup [:tiles-general-supply]))
-                    update (take-initial-items-for-player setup playerId)
-                    players (:players update)
-                    oplayers (vals (dissoc players playerId))]
-                (should= [tile1] (get-in update [:players playerId :tiles]))
-                ; everything else should remain unchanged
-                (should= [0 0 0 0] (map #(:resources %) oplayers))
-                (should= [0 0 0 0] (map #(:points %) oplayers))
-                (should= [[] [] [] []] (map #(:tiles %) oplayers))))
-
-          (it "should add a point to player when character allow it - point only"
-              (let [playerId 4
-                    characters (-> {}
-                                   (predefined-character 3))
-                    setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId characters)
-                    update (take-initial-items-for-player setup playerId)
-                    players (:players update)
-                    oplayers (vals (dissoc players playerId))]
-                (should= 1 (get-in update [:players playerId :points]))
+                    game (-> (setup {:nbPlayers 5})
+                             (redefine-characters playerId [(->character-id 21 :red)]))
+                    tile1 (first (get-in game [:tiles-general-supply]))
+                    game (take-initial-items-for-player game playerId)
+                    oplayers (vals (dissoc (:players game) playerId))]
+                (should= [tile1] (get-in game [:players playerId :tiles]))
                 ; everything else should remain unchanged
                 (should= [0 0 0 0] (map #(:resources %) oplayers))
                 (should= [0 0 0 0] (map #(:points %) oplayers))
@@ -297,18 +280,15 @@
 
           (it "should add resources, a tile and a point to player when character allow it - multiple items"
               (let [playerId 5
-                    characters (-> {}
-                                   (predefined-character 4))
-                    setup (setup {:nbPlayers 5})
-                    setup (redefine-characters setup playerId characters)
-                    tile1 (first (get-in setup [:tiles-general-supply]))
-                    update (take-initial-items-for-player setup playerId)
-                    players (:players update)
-                    oplayers (vals (dissoc players playerId))]
-                (should= [tile1] (get-in update [:players playerId :tiles]))
-                (should= 1 (get-in update [:players playerId :points]))
-                (should= 2 (get-in update [:players playerId :resources]))
-                (should= 14 (get-in update [:resources-general-supply playerId]))
+                    game (-> (setup {:nbPlayers 5})
+                             (redefine-characters playerId [(->character-id 5 :yellow)]))
+                    tile1 (first (get-in game [:tiles-general-supply]))
+                    game (take-initial-items-for-player game playerId)
+                    oplayers (vals (dissoc (:players game) playerId))]
+                (should= [tile1] (get-in game [:players playerId :tiles]))
+                (should= 1 (get-in game [:players playerId :points]))
+                (should= 2 (get-in game [:players playerId :resources]))
+                (should= 14 (get-in game [:resources-general-supply playerId]))
                 ; everything else should remain unchanged
                 (should= [0 0 0 0] (map #(:resources %) oplayers))
                 (should= [0 0 0 0] (map #(:points %) oplayers))
@@ -365,6 +345,6 @@
                              (take-initial-items-for-players)
                              (define-first-player)
                              (next-round))]
-                (println game))))
+                nil)))
 
 (run-specs)

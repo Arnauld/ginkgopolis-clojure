@@ -39,7 +39,7 @@
 (defn- tile-color-bonus [color]
   (fn [& args] (throw (UnsupportedOperationException. "Not implemented"))))
 
-(defn- tile-height-bonus [filter bonus]
+(defn- tile-height-bonus [requiredHeights bonus]
   (fn [& args] (throw (UnsupportedOperationException. "Not implemented"))))
 
 (defn- card-type-bonus [cardType bonus]
@@ -141,8 +141,8 @@
       (new-building-card :blue 11 '(on-endgame (tile-color-bonus :red)))
       (new-building-card :blue 12 '(on-endgame (tile-color-bonus :yellow)))
       (new-building-card :blue 13 '(on-endgame (tile-color-bonus :blue)))
-      (new-building-card :blue 14 '(on-endgame (tile-height-bonus #(or (= 1 %) (= 2 %)) 1)))
-      (new-building-card :blue 15 '(on-endgame (tile-height-bonus #(<= 3 %) 3)))
+      (new-building-card :blue 14 '(on-endgame (tile-height-bonus [1 2] 1)))
+      (new-building-card :blue 15 '(on-endgame (tile-height-bonus [3] 3)))
       (new-building-card :blue 16 '(on-endgame (card-type-bonus :exploit 2)))
       (new-building-card :blue 17 '(on-endgame (card-type-bonus :urbanization 2)))
       (new-building-card :blue 18 '(on-endgame (card-type-bonus :floor-construction 2)))
@@ -492,15 +492,16 @@
         :else game))
 
 (defn initial-items-of [game characterId]
-  (get-in game [:characterCards characterId :initialItems]))
+  (get-in game [:conf :characterCards characterId :initialItems]))
 
 (defn take-initial-items-for-player [game playerId]
   (let [player (get-in game [:players playerId])
         characterIds (:characters player)]
     (reduce (fn [game0 characterId]
-              (reduce (fn [game1 item] (update-player-with-item game1 playerId item))
-                      game0
-                      (initial-items-of game characterId)))
+              (let [items (initial-items-of game characterId)]
+                (reduce (fn [game1 item] (update-player-with-item game1 playerId item))
+                        game0
+                        items)))
             game characterIds)))
 
 (defn take-initial-items-for-players [game]
